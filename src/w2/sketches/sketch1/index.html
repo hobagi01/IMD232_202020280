@@ -17,11 +17,23 @@
       let userInputFromPrompt;
       userInputFromPrompt = prompt('당신의 이름은?', '홍길동');
       confirm('와 아시는구나 샌즈!');
-      confirm('ㅇㅇ 너의 이름은 ' + userInputFromPrompt + '이구나.');
+      let confirmVal = confirm(
+        'ㅇㅇ 너의 이름은 ' + userInputFromPrompt + '이구나.'
+      );
+      if (confirmVal == true) {
+        alert('환영합니다 ' + userInputFromPrompt + '님.');
+      }
     </script>
   </head>
   <body>
     <div class="viewport">
+      <header>
+        <section>
+          <div class="container">
+            <h1>신혜영 W2 Sketch1</h1>
+          </div>
+        </section>
+      </header>
       <main>
         <section>
           <div class="container"></div>
@@ -30,10 +42,12 @@
       <footer>
         <section>
           <div class="container">
+            <h2>코드</h2>
             <h6>index.html</h6>
             <pre
               class="line-numbers"
               data-src="./index.html"
+              data-line="14-22"
               data-download-link></pre>
           </div>
         </section>
