@@ -1,53 +1,23 @@
-let moverA;
-let moverB;
-let gravity;
-let wind;
+let aVariable = 20;
+let anArray = [30, 60, 90];
+let anotherArray = [];
 
 function setup() {
   setCanvasContainer('canvas', 3, 2, true);
-  background(255);
-  moverA = new Mover(width / 3, height / 2, 10);
-  moverB = new Mover((2 * width) / 3, height / 2, 1);
-  gravity = createVector(0, 0.1); // 모순 : 무거운 물체가 늦게 떨어짐 -> 과학적으로 맞지 않음(중력은 질량에 비례해서 적용되어야 함)
-  wind = createVector(0.2, 0); //바람이 중력보다 센 상황
-}
-function draw() {
-  background(255);
+  console.log(aVariable);
+  console.log('anArray', anArray);
+  console.log('anArray[0]', anArray[0]); //0,1,2 순일 것
+  console.log('anArray[1]', anArray[1]);
+  console.log('anArray[2]', anArray[2]);
+  console.log('anArray.length', anArray.length);
+  console.log('anotherArray.length', anotherArray.length); //아직 아무것도 없는 상태
+  console.log('anotherArray', anotherArray[0]); //그런 정보 없다고 뜸
+  console.log('anotherArray', anotherArray[1]); //그런 정보 없다고 뜸
+  anotherArray.push('어레이에 넣은 첫 데이터'); // 정보를 push로 넣음
+  console.log('anotherArray[0]', anotherArray[0]); //그 이후부터는 값이 나올 수 있게 됨
+  anotherArray.push(50);
+  console.log('anotherArray[1]', anotherArray[1]);
 
-  let gravityA = createVector(gravity.x, gravity.y);
-  gravityA.mult(moverA.mass);
-  moverA.applyForce(gravityA);
-  if (mouseIsPressed && isMouseInsideCanvas()) {
-    moverA.applyForce(wind);
-  }
-  if (moverA.contactEdge()) {
-    let c = 0.1; //0~1사이의 값 / c = µ
-    // let friction = createVector(moverA.vel.x, moverA.vel.y); //어차피 moverA의 vel 복사하고 싶은 것
-    let friction = moverA.vel.copy();
-    friction.mult(-1); //방향이 뒤집히게 됨
-    friction.mult(c); // 0.5의 값을 넣어줌
-    moverA.applyForce(friction);
-  }
-  moverA.update();
-  moverA.checkEdges();
-  moverA.display();
-  moverA.displayVectors();
-
-  let gravityB = createVector(gravity.x, gravity.y);
-  gravityB.mult(moverB.mass);
-  moverB.applyForce(gravityB);
-  if (mouseIsPressed && isMouseInsideCanvas()) {
-    moverB.applyForce(wind);
-  }
-  if (moverB.contactEdge()) {
-    let c = 0.9; //0~1사이의 값 / c = µ
-    let friction = moverB.vel.copy();
-    friction.mult(-1); //방향이 뒤집히게 됨
-    friction.mult(c); // 0.5의 값을 넣어줌
-    moverB.applyForce(friction);
-  }
-  moverB.update();
-  moverB.checkEdges();
-  moverB.display();
-  moverB.displayVectors();
+  background(255);
 }
+function draw() {}
