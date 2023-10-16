@@ -1,27 +1,3 @@
-// class Pendulum {
-//   constructor(x, y, length, angle, rad) {
-//     this.angle = angle;
-//     this.angleVel = 0;
-//     this.angleAcc = 0;
-//     this.pos = createVector(x, y);
-//     this.length = length;
-//     this.ballPos = createVector();
-//     this.rad = rad;
-//     this.draggingOffset = createVector();
-//     this.isHover = false;
-//     this.isDragging = false;
-//     this.setup();
-//   }
-
-//   setup() {
-//     this.angleAcc = 0;
-//     this.angleVel = 0;
-//     this.ballPos.set(
-//       cos(this.angle) * this.length + this.pos.x,
-//       sin(this.angle) * this.length + this.pos.y
-//     );
-//   }
-
 class Pendulum {
   constructor(x, y, length, angle, rad) {
     this.angle = angle;
