@@ -51,14 +51,14 @@ function setup() {
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
   // Concave decomposition
-  const starVertices = createStarVertices(100, 0, 25, 7);
+  const starVertices = createStarVertices(200, 10, 25, 7);
   const concaveStar = decomp.quickDecomp(starVertices);
 
   // create bodies
   group = Matter.Body.nextGroup(true);
 
   // For ropeA, create a star-shaped body
-  ropeA = Matter.Composites.stack(100, 50, 10, 1, 10, 10, function (x, y) {
+  ropeA = Matter.Composites.stack(200, 50, 10, 1, 10, 10, function (x, y) {
     return Matter.Bodies.fromVertices(x, y, concaveStar, {
       collisionFilter: { group: group },
     });
@@ -85,7 +85,7 @@ function setup() {
 
   group = Matter.Body.nextGroup(true);
 
-  ropeB = Matter.Composites.stack(350, 50, 10, 1, 10, 10, function (x, y) {
+  ropeB = Matter.Composites.stack(400, 50, 10, 1, 10, 10, function (x, y) {
     return Matter.Bodies.circle(x, y, 20, {
       collisionFilter: { group: group },
     });
