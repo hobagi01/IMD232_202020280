@@ -1,9 +1,21 @@
-let engine, world, ropeA, ropeB, ropeC, mouseConstraint;
-const oWidth = 800;
-const oHeight = 600;
-
 // provide concave decomposition support library
 Matter.Common.setDecomp(decomp);
+
+function createStarVertices(x, y, radius, points) {
+  const angle = (Math.PI * 2) / points;
+  let vertices = [];
+  for (let i = 0; i < points * 2; i++) {
+    const currentRadius = i % 2 === 0 ? radius : radius / 2;
+    const posX = x + Math.cos(angle * i) * currentRadius;
+    const posY = y + Math.sin(angle * i) * currentRadius;
+    vertices.push({ x: posX, y: posY });
+  }
+  return vertices;
+}
+
+let engine, world, ropeA, mouseConstraint;
+const oWidth = 800;
+const oHeight = 600;
 
 function setup() {
   // create canvas
@@ -12,8 +24,6 @@ function setup() {
   // create engine
   engine = Matter.Engine.create();
   world = engine.world;
-  //create runner
-  runner = Matter.Runner.create();
 
   // create bodies
   let group = Matter.Body.nextGroup(true);
@@ -26,21 +36,16 @@ function setup() {
     10,
     10,
     function (x, y) {
-      return Matter.Bodies.fromVertices(
-        x,
-        y,
-        Matter.Vertices.fromPath(
-          '25 0 31.5 19 50 19 34.5 29.5 41 50 25 37.5 9 50 15.5 29.5 0 19 18.5 19.5'
-        ),
-        {
-          collisionFilter: { group: group },
-        }
-      );
+      const starVertices = createStarVertices(x, y, 25, 7); //  7points for star
+      const starBody = Matter.Bodies.fromVertices(x, y, starVertices, {
+        collisionFilter: { group: group },
+      });
+      return starBody;
     }
   );
 
   Matter.Composites.chain(ropeA, 0.5, 0, -0.5, 0, {
-    stiffness: 0.4,
+    stiffness: 0.8,
     length: 2,
     render: { type: 'line' },
   });
@@ -52,6 +57,9 @@ function setup() {
       pointB: { x: -10, y: 0 },
       pointA: { x: ropeA.bodies[0].position.x, y: ropeA.bodies[0].position.y },
       stiffness: 0.5,
+      render: {
+        visible: false, // Hide the constraint line for the first body
+      },
     })
   );
 
@@ -135,12 +143,15 @@ function setup() {
 
   // keep the mouse in sync with rendering
   Matter.Render.mouse = canvasMouse;
+
   background('#272727');
+  // run the engine
+  Matter.Runner.run(engine);
 }
 
 function draw() {
   // Update physics engine
-  Matter.Engine.update(engine);
+  //   Matter.Engine.update(engine);
 
   // Draw ropes and bodies
   background('#272727');
