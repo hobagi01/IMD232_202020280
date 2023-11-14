@@ -1,5 +1,37 @@
+const {
+  Engine,
+  Render,
+  Runner,
+  Body,
+  Composite,
+  Composites,
+  Constraint,
+  Mouse,
+  Bodies,
+  Common,
+  Vertices,
+  MouseConstraint,
+} = Matter;
+const oWidth = 800;
+const oHeight = 600;
+
 // provide concave decomposition support library
-Matter.Common.setDecomp(decomp);
+Common.setDecomp(decomp);
+
+// create engine
+const engine = Engine.create();
+world = engine.world;
+
+//create runner
+const runner = Runner.create();
+Runner.run(runner, engine);
+
+let group;
+let ropeA;
+let ropeB;
+let ropeC;
+
+let mouse;
 
 function createStarVertices(x, y, radius, points) {
   const angle = (Math.PI * 2) / points;
@@ -13,24 +45,16 @@ function createStarVertices(x, y, radius, points) {
   return vertices;
 }
 
-let engine, world, ropeA, mouseConstraint;
-const oWidth = 800;
-const oHeight = 600;
-
 function setup() {
   // create canvas
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
-  // create engine
-  engine = Matter.Engine.create();
-  world = engine.world;
-
   // create bodies
-  let group = Matter.Body.nextGroup(true);
+  group = Matter.Body.nextGroup(true);
 
   ropeA = Matter.Composites.stack(
     oWidth / 4,
-    100,
+    50,
     8,
     1,
     10,
@@ -67,7 +91,7 @@ function setup() {
 
   ropeB = Matter.Composites.stack(
     (oWidth / 4) * 2,
-    100,
+    50,
     10,
     1,
     10,
@@ -99,7 +123,7 @@ function setup() {
 
   ropeC = Matter.Composites.stack(
     (oWidth / 4) * 3,
-    100,
+    50,
     13,
     1,
     10,
@@ -128,7 +152,7 @@ function setup() {
     ropeA,
     ropeB,
     ropeC,
-    // Matter.Bodies.rectangle(400, 600, 1200, 50.5, { isStatic: true }),
+    Matter.Bodies.rectangle(400, 600, 1200, 50.5, { isStatic: true }),
   ]);
 
   // add mouse control
@@ -146,7 +170,7 @@ function setup() {
 
   background('#272727');
   // run the engine
-  Matter.Runner.run(engine);
+  //   Matter.Runner.run(engine);
 }
 
 function draw() {
