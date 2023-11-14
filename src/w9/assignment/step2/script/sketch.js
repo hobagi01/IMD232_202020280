@@ -1,75 +1,46 @@
-const {
-  Engine,
-  Render,
-  Runner,
-  Body,
-  Composite,
-  Composites,
-  Constraint,
-  Mouse,
-  Bodies,
-  Common,
-  Vertices,
-  MouseConstraint,
-} = Matter;
+let engine, world, ropeA, ropeB, ropeC, mouseConstraint;
 const oWidth = 800;
 const oHeight = 600;
 
 // provide concave decomposition support library
-Common.setDecomp(decomp);
-
-// create engine
-const engine = Engine.create();
-world = engine.world;
-
-//create runner
-const runner = Runner.create();
-Runner.run(runner, engine);
-
-let group;
-let ropeA;
-let ropeB;
-let ropeC;
-
-let mouse;
-
-function createStarVertices(x, y, radius, points) {
-  const angle = (Math.PI * 2) / points;
-  let vertices = [];
-  for (let i = 0; i < points * 2; i++) {
-    const currentRadius = i % 2 === 0 ? radius : radius / 2;
-    const posX = x + Math.cos(angle * i) * currentRadius;
-    const posY = y + Math.sin(angle * i) * currentRadius;
-    vertices.push({ x: posX, y: posY });
-  }
-  return vertices;
-}
+Matter.Common.setDecomp(decomp);
 
 function setup() {
   // create canvas
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
+  // create engine
+  engine = Matter.Engine.create();
+  world = engine.world;
+  //create runner
+  runner = Matter.Runner.create();
+
   // create bodies
-  group = Matter.Body.nextGroup(true);
+  let group = Matter.Body.nextGroup(true);
 
   ropeA = Matter.Composites.stack(
     oWidth / 4,
-    50,
+    100,
     8,
     1,
     10,
     10,
     function (x, y) {
-      const starVertices = createStarVertices(x, y, 25, 7); //  7points for star
-      const starBody = Matter.Bodies.fromVertices(x, y, starVertices, {
-        collisionFilter: { group: group },
-      });
-      return starBody;
+      return Matter.Bodies.fromVertices(
+        x,
+        y,
+        Matter.Vertices.fromPath(
+          '25 0 31.5 19 50 19 34.5 29.5 41 50 25 37.5 9 50 15.5 29.5 0 19 18.5 19.5'
+        ),
+        {
+          collisionFilter: { group: group },
+        }
+      );
     }
   );
 
   Matter.Composites.chain(ropeA, 0.5, 0, -0.5, 0, {
-    stiffness: 0.8,
+    stiffness: 0.4,
     length: 2,
     render: { type: 'line' },
   });
@@ -81,9 +52,6 @@ function setup() {
       pointB: { x: -10, y: 0 },
       pointA: { x: ropeA.bodies[0].position.x, y: ropeA.bodies[0].position.y },
       stiffness: 0.5,
-      render: {
-        visible: false, // Hide the constraint line for the first body
-      },
     })
   );
 
@@ -91,7 +59,7 @@ function setup() {
 
   ropeB = Matter.Composites.stack(
     (oWidth / 4) * 2,
-    50,
+    100,
     10,
     1,
     10,
@@ -123,7 +91,7 @@ function setup() {
 
   ropeC = Matter.Composites.stack(
     (oWidth / 4) * 3,
-    50,
+    100,
     13,
     1,
     10,
@@ -152,7 +120,7 @@ function setup() {
     ropeA,
     ropeB,
     ropeC,
-    Matter.Bodies.rectangle(400, 600, 1200, 50.5, { isStatic: true }),
+    // Matter.Bodies.rectangle(400, 600, 1200, 50.5, { isStatic: true }),
   ]);
 
   // add mouse control
@@ -167,15 +135,12 @@ function setup() {
 
   // keep the mouse in sync with rendering
   Matter.Render.mouse = canvasMouse;
-
   background('#272727');
-  // run the engine
-  //   Matter.Runner.run(engine);
 }
 
 function draw() {
   // Update physics engine
-  //   Matter.Engine.update(engine);
+  Matter.Engine.update(engine);
 
   // Draw ropes and bodies
   background('#272727');
