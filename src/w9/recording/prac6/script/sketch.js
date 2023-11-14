@@ -12,18 +12,17 @@ const {
   Vertices,
   MouseConstraint,
 } = Matter;
-
 const oWidth = 800;
 const oHeight = 600;
 
-// Provide concave decomposition support library
+// provide concave decomposition support library
 Common.setDecomp(decomp);
 
-// Create engine
+// create engine
 const engine = Engine.create();
-const world = engine.world;
+world = engine.world;
 
-// Create runner
+//create runnerㄹ
 const runner = Runner.create();
 Runner.run(runner, engine);
 
@@ -33,53 +32,43 @@ let ropeB;
 let ropeC;
 
 let mouse;
-let mouseConstraint;
 
-function createConcaveVertices(x, y, radius, points) {
+function createStarVertices(x, y, radius, points) {
   const angle = (Math.PI * 2) / points;
-  const starVertices = [];
-  for (let i = 0; i < points; i++) {
-    const posX = x + Math.cos(angle * i) * radius;
-    const posY = y + Math.sin(angle * i) * radius;
-    starVertices.push([posX, posY]);
+  let vertices = [];
+  for (let i = 0; i < points * 2; i++) {
+    const currentRadius = i % 2 === 0 ? radius : radius / 2;
+    const posX = x + Math.cos(angle * i) * currentRadius;
+    const posY = y + Math.sin(angle * i) * currentRadius;
+    vertices.push({ x: posX, y: posY });
   }
-
-  // Use decomp library to create concave polygon
-  const concaveVertices = decomp.quickDecomp(starVertices);
-
-  // Convert concave vertices back to the format expected by Matter.js
-  const matterVertices = concaveVertices.reduce((acc, cur) => {
-    acc.push({ x: cur[0], y: cur[1] });
-    return acc;
-  }, []);
-
-  return matterVertices;
+  return vertices;
 }
 
 function setup() {
-  // Create canvas
+  // create canvas
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
-  // Create bodies
+  // create bodies
   group = Matter.Body.nextGroup(true);
 
   ropeA = Matter.Composites.stack(
     oWidth / 4,
     50,
-    8,
+    10,
     1,
     10,
     10,
     function (x, y) {
-      const concaveVertices = createConcaveVertices(x, y, 25, 7);
-      const concaveBody = Matter.Bodies.fromVertices(x, y, concaveVertices, {
+      const starVertices = createStarVertices(x, y, 25, 7); //  7points for star
+      const starBody = Matter.Bodies.fromVertices(x, y, starVertices, {
         collisionFilter: { group: group },
       });
-      return concaveBody;
+      return starBody;
     }
   );
 
-  Matter.Composites.chain(ropeA, 0.5, 0, -0.5, 0, {
+  Matter.Composites.chain(ropeA, 0.3, 0, -0.5, 0, {
     stiffness: 0.8,
     length: 2,
     render: { type: 'line' },
@@ -176,17 +165,26 @@ function setup() {
   mouseConstraint = Matter.MouseConstraint.create(engine, mouseOptions);
   Matter.World.add(world, mouseConstraint);
 
-  // keep the mouse in sync with rendering
-  Render.mouse = canvasMouse;
+  //   mouse = Mouse.create(canvas.elt);
+  //   mouse.pixelRatio = (pixelDensity() * width) / oWidth;
+  //   let mouseConstraint = MouseConstraint.create(engine, {
+  //     mouse: mouse,
+  //     constraint: {
+  //       stiffness: 0.2,
+  //     },
+  //   });
+  //   Composite.add(world.mouseConstraint);
 
   background('#272727');
+  // keep the mouse in sync with rendering
+  Render.mouse = canvasMouse;
 }
 
 function draw() {
   // Update physics engine
   Matter.Engine.update(engine);
   //   mouse.pixelRatio = (pixelDensity() * width) / oWidth;
-
+  //   canvasMouse.pixelRatio = (pixelDensity() * width) / oWidth;
   // Draw ropes and bodies
   background('#272727');
   fill(200, 200, 100);

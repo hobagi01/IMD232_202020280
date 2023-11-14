@@ -12,6 +12,7 @@ const {
   Vertices,
   MouseConstraint,
 } = Matter;
+
 const oWidth = 800;
 const oHeight = 600;
 
@@ -20,9 +21,9 @@ Common.setDecomp(decomp);
 
 // create engine
 const engine = Engine.create();
-world = engine.world;
+const world = engine.world;
 
-//create runnerㄹ
+// create runner
 const runner = Runner.create();
 Runner.run(runner, engine);
 
@@ -49,24 +50,19 @@ function setup() {
   // create canvas
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
+  // Concave decomposition
+  const starVertices = createStarVertices(100, 0, 25, 7);
+  const concaveStar = decomp.quickDecomp(starVertices);
+
   // create bodies
   group = Matter.Body.nextGroup(true);
 
-  ropeA = Matter.Composites.stack(
-    oWidth / 4,
-    50,
-    10,
-    1,
-    10,
-    10,
-    function (x, y) {
-      const starVertices = createStarVertices(x, y, 25, 7); //  7points for star
-      const starBody = Matter.Bodies.fromVertices(x, y, starVertices, {
-        collisionFilter: { group: group },
-      });
-      return starBody;
-    }
-  );
+  // For ropeA, create a star-shaped body
+  ropeA = Matter.Composites.stack(100, 50, 10, 1, 10, 10, function (x, y) {
+    return Matter.Bodies.fromVertices(x, y, concaveStar, {
+      collisionFilter: { group: group },
+    });
+  });
 
   Matter.Composites.chain(ropeA, 0.3, 0, -0.5, 0, {
     stiffness: 0.8,
@@ -78,7 +74,7 @@ function setup() {
     ropeA,
     Matter.Constraint.create({
       bodyB: ropeA.bodies[0],
-      pointB: { x: -10, y: 0 },
+      pointB: { x: -25, y: 0 },
       pointA: { x: ropeA.bodies[0].position.x, y: ropeA.bodies[0].position.y },
       stiffness: 0.5,
       render: {
@@ -89,19 +85,11 @@ function setup() {
 
   group = Matter.Body.nextGroup(true);
 
-  ropeB = Matter.Composites.stack(
-    (oWidth / 4) * 2,
-    50,
-    10,
-    1,
-    10,
-    10,
-    function (x, y) {
-      return Matter.Bodies.circle(x, y, 20, {
-        collisionFilter: { group: group },
-      });
-    }
-  );
+  ropeB = Matter.Composites.stack(350, 50, 10, 1, 10, 10, function (x, y) {
+    return Matter.Bodies.circle(x, y, 20, {
+      collisionFilter: { group: group },
+    });
+  });
 
   Matter.Composites.chain(ropeB, 0.5, 0, -0.5, 0, {
     stiffness: 0.8,
@@ -121,20 +109,12 @@ function setup() {
 
   group = Matter.Body.nextGroup(true);
 
-  ropeC = Matter.Composites.stack(
-    (oWidth / 4) * 3,
-    50,
-    13,
-    1,
-    10,
-    10,
-    function (x, y) {
-      return Matter.Bodies.rectangle(x - 20, y, 50, 20, {
-        collisionFilter: { group: group },
-        chamfer: 5,
-      });
-    }
-  );
+  ropeC = Matter.Composites.stack(600, 50, 13, 1, 10, 10, function (x, y) {
+    return Matter.Bodies.rectangle(x - 20, y, 50, 20, {
+      collisionFilter: { group: group },
+      chamfer: 5,
+    });
+  });
 
   Matter.Composites.chain(ropeC, 0.3, 0, -0.3, 0, { stiffness: 1, length: 0 });
 
@@ -156,35 +136,37 @@ function setup() {
   ]);
 
   // add mouse control
-  let canvasMouse = Matter.Mouse.create(canvas.elt),
-    mouseOptions = {
-      mouse: canvasMouse,
-    };
-  canvasMouse.pixelRatio = (pixelDensity() * width) / oWidth;
+  //   let canvasMouse = Matter.Mouse.create(canvas.elt),
+  //     mouseOptions = {
+  //       mouse: canvasMouse,
+  //     };
+  //   canvasMouse.pixelRatio = (pixelDensity() * width) / oWidth;
 
-  mouseConstraint = Matter.MouseConstraint.create(engine, mouseOptions);
-  Matter.World.add(world, mouseConstraint);
+  //   mouseConstraint = Matter.MouseConstraint.create(engine, mouseOptions);
+  //   Matter.World.add(world, mouseConstraint);
 
-  //   mouse = Mouse.create(canvas.elt);
-  //   mouse.pixelRatio = (pixelDensity() * width) / oWidth;
-  //   let mouseConstraint = MouseConstraint.create(engine, {
-  //     mouse: mouse,
-  //     constraint: {
-  //       stiffness: 0.2,
-  //     },
-  //   });
-  //   Composite.add(world.mouseConstraint);
+  mouse = Mouse.create(canvas.elt);
+  mouse.pixelRatio = (pixelDensity() * width) / oWidth;
+  let mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+      stiffness: 0.2,
+    },
+  });
+
+  Composite.add(world, mouseConstraint);
 
   background('#272727');
   // keep the mouse in sync with rendering
-  Render.mouse = canvasMouse;
+  //   Render.mouse = canvasMouse;
+  Runner.run(runner, engine);
 }
 
 function draw() {
   // Update physics engine
-  Matter.Engine.update(engine);
-  //   mouse.pixelRatio = (pixelDensity() * width) / oWidth;
-  //   canvasMouse.pixelRatio = (pixelDensity() * width) / oWidth;
+  //   Matter.Engine.update(engine);
+  mouse.pixelRatio = (pixelDensity() * width) / oWidth;
+
   // Draw ropes and bodies
   background('#272727');
   fill(200, 200, 100);
