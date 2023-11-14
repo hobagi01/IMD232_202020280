@@ -1,8 +1,23 @@
-const { Engine, Runner, Render, Composite, Bodies, Mouse, MouseConstraint } =
-  Matter;
+const {
+  Engine,
+  Render,
+  Runner,
+  Body,
+  Composite,
+  Composites,
+  Constraint,
+  Mouse,
+  Bodies,
+  Common,
+  Vertices,
+  MouseConstraint,
+} = Matter;
 
 const oWidth = 800;
 const oHeight = 600;
+
+// provide concave decomposition support library
+Common.setDecomp(decomp);
 
 // create engine
 const engine = Engine.create();
@@ -16,6 +31,7 @@ let group;
 let ropeA;
 let ropeB;
 let ropeC;
+
 let mouse;
 
 function createStarVertices(x, y, radius, points) {
@@ -31,13 +47,17 @@ function createStarVertices(x, y, radius, points) {
 }
 
 function setup() {
+  // create canvas
   setCanvasContainer('canvas', oWidth, oHeight, true);
 
+  // Concave decomposition
   const starVertices = createStarVertices(200, 10, 25, 7);
   const concaveStar = decomp.quickDecomp(starVertices);
 
+  // create bodies
   group = Matter.Body.nextGroup(true);
 
+  // For ropeA, create a star-shaped body
   ropeA = Matter.Composites.stack(200, 50, 10, 1, 10, 10, function (x, y) {
     return Matter.Bodies.fromVertices(x, y, concaveStar, {
       collisionFilter: { group: group },
@@ -58,7 +78,7 @@ function setup() {
       pointA: { x: ropeA.bodies[0].position.x, y: ropeA.bodies[0].position.y },
       stiffness: 0.5,
       render: {
-        visible: false,
+        visible: false, // Hide the constraint line for the first body
       },
     })
   );
@@ -115,6 +135,16 @@ function setup() {
     Matter.Bodies.rectangle(400, 600, 1200, 50.5, { isStatic: true }),
   ]);
 
+  // add mouse control
+  //   let canvasMouse = Matter.Mouse.create(canvas.elt),
+  //     mouseOptions = {
+  //       mouse: canvasMouse,
+  //     };
+  //   canvasMouse.pixelRatio = (pixelDensity() * width) / oWidth;
+
+  //   mouseConstraint = Matter.MouseConstraint.create(engine, mouseOptions);
+  //   Matter.World.add(world, mouseConstraint);
+
   mouse = Mouse.create(canvas.elt);
   mouse.pixelRatio = (pixelDensity() * width) / oWidth;
   let mouseConstraint = MouseConstraint.create(engine, {
@@ -127,11 +157,17 @@ function setup() {
   Composite.add(world, mouseConstraint);
 
   background('#272727');
-  Render.mouse = mouse;
+  // keep the mouse in sync with rendering
+  //   Render.mouse = canvasMouse;
   Runner.run(runner, engine);
 }
 
 function draw() {
+  // Update physics engine
+  //   Matter.Engine.update(engine);
+  mouse.pixelRatio = (pixelDensity() * width) / oWidth;
+
+  // Draw ropes and bodies
   background('#272727');
   fill(200, 200, 100);
   drawRope(ropeA);
@@ -143,12 +179,24 @@ function draw() {
 
 function drawRope(rope) {
   for (let i = 0; i < rope.bodies.length; i++) {
-    let vertices = rope.bodies[i].parts[0].vertices;
+    let pos = rope.bodies[i].position;
     noStroke();
-    beginShape();
-    for (let j = 0; j < vertices.length; j++) {
-      vertex(vertices[j].x, vertices[j].y);
+    if (rope.bodies[i].parts.length === 1) {
+      let vertices = rope.bodies[i].parts[0].vertices;
+      beginShape();
+      for (let j = 0; j < vertices.length; j++) {
+        vertex(vertices[j].x, vertices[j].y);
+      }
+      endShape(CLOSE);
+    } else {
+      for (let j = 0; j < rope.bodies[i].parts.length; j++) {
+        let vertices = rope.bodies[i].parts[j].vertices;
+        beginShape();
+        for (let k = 0; k < vertices.length; k++) {
+          vertex(vertices[k].x, vertices[k].y);
+        }
+        endShape(CLOSE);
+      }
     }
-    endShape(CLOSE);
   }
 }
